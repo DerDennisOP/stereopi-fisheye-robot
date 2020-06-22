@@ -26,8 +26,8 @@
 # Thanks to rakali project: https://github.com/sthysel/rakali
 
 
-import picamera
-from picamera import PiCamera
+# import picamera
+# from picamera import PiCamera
 import time
 import cv2
 import numpy as np
@@ -59,29 +59,23 @@ capture = np.zeros((img_height, img_width, 4), dtype=np.uint8)
 print ("Scaled image resolution: "+str(img_width)+" x "+str(img_height))
 
 # Initialize the camera
-camera = PiCamera(stereo_mode='side-by-side',stereo_decimate=False)
-camera.resolution=(cam_width, cam_height)
-camera.framerate = 20
+# camera = PiCamera(stereo_mode='side-by-side',stereo_decimate=False)
+# camera.resolution=(cam_width, cam_height)
+# camera.framerate = 20
 #camera.hflip = True
 
 t0 = datetime.now()
 counter = 0
 avgtime = 0
 # Capture frames from the camera
-for frame in camera.capture_continuous(capture, format="bgra", use_video_port=True, resize=(img_width,img_height)):
-    counter+=1
-    cv2.imshow("pair", frame)
-    key = cv2.waitKey(1) & 0xFF
-    # if the `q` key was pressed, break from the loop and save last image
-    if key == ord("q") :
-        t1 = datetime.now()
-        timediff = t1-t0
-        print ("Average time between frames: " + str(avgtime))
-        print ("Frames: " + str(counter) + " Time: " + str(timediff.total_seconds())+ " Average FPS: " + str(counter/timediff.total_seconds()))
-        if (os.path.isdir("./scenes")==False):
-            os.makedirs("./scenes")
-        cv2.imwrite(filename, frame)
-        exit(0)
-        break
-   
+# for frame in camera.capture_continuous(capture, format="bgra", use_video_port=True, resize=(img_width,img_height)):
+t1 = datetime.now()
+f1 = cv2.copyMakeBorder(cv2.resize(cv2.imread("left_calb.jpg").copy(), (640, 480)), 0, 0, 0, 0, cv2.BORDER_CONSTANT)
+f2 = cv2.resize(cv2.imread("right_calb.jpg").copy(), (640, 480))
+frame = np.zeros((480, 1280, 3), np.uint8)
+frame[0:f1.shape[0], 0:f1.shape[1]] = f1
+frame[0:f2.shape[0], 640:640+f2.shape[1]] = f1
+counter+=1
+cv2.imshow("pair", frame)
+key = cv2.waitKey(0)
     

@@ -28,8 +28,8 @@
 
 import cv2
 import os
-from picamera.array import PiRGBArray
-from picamera import PiCamera
+# from picamera.array import PiRGBArray
+# from picamera import PiCamera
 from matplotlib import pyplot as plt
 from matplotlib.widgets import Slider, Button
 import numpy as np
@@ -45,22 +45,16 @@ image_height = 240
 
 image_size = (image_width,image_height)
 
-if os.path.isfile(imageToDisp) == False:
-    print ('Can not read image from file \"'+imageToDisp+'\"')
-    # No image! Let's take it...
-    print ("Taking photo...")
-    camera = PiCamera(stereo_mode='side-by-side',stereo_decimate=False)
-    camera.resolution=(photo_width, photo_height)
-    #camera.hflip = True
-    time.sleep(1)
-    camera.capture(imageToDisp)
-    print ("Done!")
-    
-pair_img = cv2.imread(imageToDisp,0)
+# pair_img = cv2.imread(imageToDisp,0)
+f1 = cv2.copyMakeBorder(cv2.resize(cv2.imread("im2.jpg").copy(), (640, 480)), 0, 0, 0, 0, cv2.BORDER_CONSTANT)
+f2 = cv2.resize(cv2.imread("im3.jpg").copy(), (640, 480))
+pair_img = np.zeros((480, 1280, 3), np.uint8)
+pair_img[0:f1.shape[0], 0:f1.shape[1]] = f1
+pair_img[0:f2.shape[0], 640:640+f2.shape[1]] = f1
 # Read image and split it in a stereo pair
 print('Read and split image...')
-imgLeft = pair_img [0:photo_height,0:image_width] #Y+H and X+W
-imgRight = pair_img [0:photo_height,image_width:photo_width] #Y+H and X+W
+imgL = pair_img [0:photo_height,0:image_width] #Y+H and X+W
+imgR = pair_img [0:photo_height,image_width:photo_width] #Y+H and X+W
 
 # Implementing calibration data
 print('Read calibration data and rectifying stereo pair...')
@@ -77,14 +71,14 @@ leftMapY = npzfile['leftMapY']
 rightMapX = npzfile['rightMapX']
 rightMapY = npzfile['rightMapY']
 
-width_left, height_left = imgLeft.shape[:2]
-width_right, height_right = imgRight.shape[:2]
+width_left, height_left = imgL.shape[:2]
+width_right, height_right = imgR.shape[:2]
 
 if 0 in [width_left, height_left, width_right, height_right]:
     print("Error: Can't remap image.")
 
-imgL = cv2.remap(imgLeft, leftMapX, leftMapY, interpolation=cv2.INTER_LINEAR, borderMode=cv2.BORDER_CONSTANT)
-imgR = cv2.remap(imgRight, rightMapX, rightMapY, interpolation=cv2.INTER_LINEAR, borderMode=cv2.BORDER_CONSTANT)
+# imgL = cv2.remap(imgLeft, leftMapX, leftMapY, interpolation=cv2.INTER_LINEAR, borderMode=cv2.BORDER_CONSTANT)
+# imgR = cv2.remap(imgRight, rightMapX, rightMapY, interpolation=cv2.INTER_LINEAR, borderMode=cv2.BORDER_CONSTANT)
 
 cv2.imshow('Left CALIBRATED', imgL)
 cv2.imshow('Right CALIBRATED', imgR)

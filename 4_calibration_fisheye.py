@@ -61,6 +61,7 @@ imageToDisp = './scenes/scene_1280x480_1.png'
 CHECKERBOARD = (6,9)
 
 subpix_criteria = (cv2.TERM_CRITERIA_EPS+cv2.TERM_CRITERIA_MAX_ITER, 30, 0.1)
+# calibration_flags = cv2.fisheye.CALIB_RECOMPUTE_EXTRINSIC+cv2.fisheye.CALIB_FIX_SKEW
 calibration_flags = cv2.fisheye.CALIB_RECOMPUTE_EXTRINSIC+cv2.fisheye.CALIB_FIX_SKEW
 
 objp = np.zeros( (CHECKERBOARD[0]*CHECKERBOARD[1], 1, 3) , np.float64)
@@ -166,7 +167,8 @@ def calibrate_one_camera (objpoints, imgpoints, right_or_left):
             D,
             rvecs,
             tvecs,
-            calibration_flags,
+            # calibration_flags,
+            0,
             (cv2.TERM_CRITERIA_EPS+cv2.TERM_CRITERIA_MAX_ITER, 30, 1e-6)
         )
     # Let's rectify our results
@@ -383,11 +385,15 @@ if (showStereoRectificationResults):
     image_height = 240
     image_size = (image_width,image_height)
 
-    if os.path.isfile(imageToDisp) == False:
-        print ('Can not read image from file \"'+imageToDisp+'\"')
-        exit(0)
+    # if os.path.isfile(imageToDisp) == False:
+    #     print ('Can not read image from file \"'+imageToDisp+'\"')
+    #     exit(0)
 
-    pair_img = cv2.imread(imageToDisp,0)
+    f1 = cv2.copyMakeBorder(cv2.resize(cv2.imread("left_calb.jpg").copy(), (640, 480)), 0, 0, 0, 0, cv2.BORDER_CONSTANT)
+    f2 = cv2.resize(cv2.imread("right_calb.jpg").copy(), (640, 480))
+    pair_img = np.zeros((480, 1280, 3), np.uint8)
+    pair_img[0:f1.shape[0], 0:f1.shape[1]] = f1
+    pair_img[0:f2.shape[0], 640:640+f2.shape[1]] = f1
 
     # If our image has width and height we need? 
     height_check, width_check  = pair_img.shape[:2]
